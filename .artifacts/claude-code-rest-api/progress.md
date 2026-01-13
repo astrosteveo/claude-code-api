@@ -1,9 +1,10 @@
 # Claude Code REST API - Progress
 
 ## Status
-Phase: Discovery
+Phase: Phase 2 - Infrastructure Layer (In Progress)
 Started: 2026-01-13
 Last Updated: 2026-01-13
+Session Paused: Awaiting Node 20 setup for SessionStore tests
 
 ## Checklist
 - [x] Discovery
@@ -31,6 +32,25 @@ Last Updated: 2026-01-13
 - Switched to TDD mode for implementation
 - Created comprehensive test plan with 100+ test cases ordered from simple to complex
 - Created TDD progress tracker for red-green-refactor cycles
+- Fixed Node.js compatibility issue - installed nvm and Node 20 LTS
+- Completed Phase 1: Foundation utilities (40 tests passing)
+  - Config loading (3 tests)
+  - CLI args builder (24 tests)
+  - Stream parser (9 tests)
+  - Logger (4 tests)
+- Started Phase 2: Infrastructure layer
+  - Wrote SessionStore implementation (178 lines)
+  - Wrote 18 tests for SessionStore
+  - Blocked on Node 20 setup for better-sqlite3 compilation
+- **Session Paused**: Need to reinstall dependencies with Node 20
+
+### Resumption Checklist
+When resuming:
+1. Use Node 20: `nvm use 20`
+2. Clean install: `rm -rf node_modules package-lock.json && npm install`
+3. Run tests: `npm run test:unit` (should see 58 tests pass)
+4. Commit SessionStore (GREEN phase)
+5. Continue with Phase 2.2: CLIExecutor
 
 ## Codebase Exploration
 
