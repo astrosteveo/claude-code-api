@@ -1,10 +1,10 @@
 # Claude Code REST API - Progress
 
 ## Status
-Phase: Phase 2 - Infrastructure Layer (Complete) → Phase 3 - Service Layer (Next)
+Phase: Phase 3 - Service Layer (Complete) → Phase 4 - Middleware (Next)
 Started: 2026-01-13
 Last Updated: 2026-01-13
-Current Session: Resumed and completed infrastructure layer
+Current Session: Completed service layer with QueryService and SessionService
 
 ## Checklist
 - [x] Discovery
@@ -56,7 +56,15 @@ Current Session: Resumed and completed infrastructure layer
   - Phase 2.3: RequestQueue (12 tests, 58 lines)
     - RED: Wrote 12 failing tests for queueing, concurrency, error handling
     - GREEN: Implemented RequestQueue using p-queue library
-- **Current status**: 82 tests passing, Infrastructure layer complete
+- Completed Phase 3: Service layer (TDD red-green cycles)
+  - Phase 3.1: QueryService (7 tests, 38 lines)
+    - RED: Wrote 7 failing tests for blocking/streaming query execution
+    - GREEN: Implemented QueryService using CLIExecutor and buildCLIArgs
+  - Phase 3.2: SessionService (21 tests, 209 lines)
+    - RED: Wrote 18 failing tests for CRUD, message operations, queueing
+    - GREEN: Implemented SessionService with SessionStore, CLIExecutor, RequestQueue integration
+    - Features: session CRUD, message queueing, metadata updates, cost accumulation
+- **Current status**: 110 tests passing, Service layer complete
 
 ## Codebase Exploration
 
