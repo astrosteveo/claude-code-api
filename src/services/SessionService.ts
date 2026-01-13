@@ -95,17 +95,18 @@ export class SessionService {
    * Send a message to a session (blocking)
    */
   async sendMessage(sessionId: string, request: QueryRequest): Promise<CLIResult> {
-    // Check if session exists
-    const exists = await this.store.exists(sessionId);
+    // Get session to check if it exists and get message count
+    const session = await this.store.findById(sessionId);
 
-    if (!exists) {
+    if (!session) {
       throw new Error('Session not found');
     }
 
     // Enqueue the request to ensure sequential processing
     return this.queue.enqueue(sessionId, async () => {
-      // Build CLI args with session ID
-      const args = buildCLIArgs(request, sessionId, false);
+      // Build CLI args - use isNewSession=true only for first message
+      const isNewSession = session.messageCount === 0;
+      const args = buildCLIArgs(request, sessionId, false, isNewSession);
 
       // Execute CLI
       const result = await this.executor.execute(args);
@@ -124,17 +125,18 @@ export class SessionService {
     sessionId: string,
     request: QueryRequest
   ): AsyncGenerator<CLIStreamEvent> {
-    // Check if session exists
-    const exists = await this.store.exists(sessionId);
+    // Get session to check if it exists and get message count
+    const session = await this.store.findById(sessionId);
 
-    if (!exists) {
+    if (!session) {
       throw new Error('Session not found');
     }
 
     // Enqueue the streaming request
     const streamGenerator = await this.queue.enqueue(sessionId, async () => {
-      // Build CLI args with session ID for streaming
-      const args = buildCLIArgs(request, sessionId, true);
+      // Build CLI args - use isNewSession=true only for first message
+      const isNewSession = session.messageCount === 0;
+      const args = buildCLIArgs(request, sessionId, true, isNewSession);
 
       // Execute CLI stream
       return this.executor.executeStream(args);

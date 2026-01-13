@@ -10,7 +10,8 @@ import type { QueryRequest } from '../types/api.js';
 export function buildCLIArgs(
   request: QueryRequest,
   sessionId?: string,
-  streaming: boolean = false
+  streaming: boolean = false,
+  isNewSession: boolean = true
 ): string[] {
   const args: string[] = [];
 
@@ -22,7 +23,13 @@ export function buildCLIArgs(
 
   // Session management
   if (sessionId) {
-    args.push('--session-id', sessionId);
+    if (isNewSession) {
+      // First message: create new session with this ID
+      args.push('--session-id', sessionId);
+    } else {
+      // Subsequent messages: resume existing session
+      args.push('--resume', sessionId);
+    }
   }
 
   if (request.forkSession) {

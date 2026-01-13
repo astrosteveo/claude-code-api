@@ -1,0 +1,203 @@
+### ============================================
+### Claude Code REST API - Test Requests
+### ============================================
+### Click "Send Request" above any request to test it
+### Make sure the server is running first:
+###   npm run build && node dist/index.js
+### ============================================
+
+@baseUrl = http://localhost:3000/api/v1
+# Session ID must be a valid UUID for Claude CLI
+@sessionId = 7ec825e4-f288-4eb7-b1eb-e0bf9cf6f2ed
+
+### ============================================
+### HEALTH ENDPOINTS
+### ============================================
+
+### Health Check - Simple status check
+GET {{baseUrl}}/health
+
+###
+
+### System Info - Shows CLI version and config
+GET {{baseUrl}}/info
+
+### ============================================
+### SESSION ENDPOINTS
+### ============================================
+
+### Create Session - With custom ID and metadata
+POST {{baseUrl}}/sessions
+Content-Type: application/json
+
+{
+  "id": "{{sessionId}}",
+  "metadata": {
+    "purpose": "API testing",
+    "created_by": "REST Client"
+  }
+}
+
+###
+
+### Create Session - Auto-generated ID
+POST {{baseUrl}}/sessions
+Content-Type: application/json
+
+{
+  "metadata": {
+    "purpose": "auto-id test"
+  }
+}
+
+###
+
+### List All Sessions
+GET {{baseUrl}}/sessions
+
+###
+
+### Get Session by ID
+GET {{baseUrl}}/sessions/{{sessionId}}
+
+###
+
+### Get Non-Existent Session (should return 404)
+GET {{baseUrl}}/sessions/does-not-exist
+
+###
+
+### Delete Session
+DELETE {{baseUrl}}/sessions/{{sessionId}}
+
+### ============================================
+### MESSAGE ENDPOINTS (Session-based)
+### ============================================
+### NOTE: These require Claude CLI to be installed and authenticated
+### They will execute actual Claude queries and may incur costs
+
+### Send Message (Blocking) - Simple prompt
+POST {{baseUrl}}/sessions/{{sessionId}}/messages
+Content-Type: application/json
+
+{
+  "prompt": "What is 2 + 2? Reply with just the number."
+}
+
+###
+
+### Send Message (Blocking) - With options
+POST {{baseUrl}}/sessions/{{sessionId}}/messages
+Content-Type: application/json
+
+{
+  "prompt": "List the files in the current directory",
+  "allowedTools": ["Bash", "Glob"],
+  "maxBudgetUsd": 0.10
+}
+
+###
+
+### Send Message (Streaming) - SSE response
+POST {{baseUrl}}/sessions/{{sessionId}}/messages/stream
+Content-Type: application/json
+
+{
+  "prompt": "Count from 1 to 5, one number per line."
+}
+
+###
+
+### Validation Error Test - Missing prompt (should return 400)
+POST {{baseUrl}}/sessions/{{sessionId}}/messages
+Content-Type: application/json
+
+{
+  "model": "haiku"
+}
+
+### ============================================
+### QUERY ENDPOINTS (Stateless)
+### ============================================
+### These don't maintain conversation context
+
+### Simple Query (Blocking)
+POST {{baseUrl}}/query
+Content-Type: application/json
+
+{
+  "prompt": "What is the capital of France? Reply in one word."
+}
+
+###
+
+### Query with Model Selection
+POST {{baseUrl}}/query
+Content-Type: application/json
+
+{
+  "prompt": "Explain what an API is in one sentence.",
+  "model": "haiku"
+}
+
+###
+
+### Query (Streaming)
+POST {{baseUrl}}/query/stream
+Content-Type: application/json
+
+{
+  "prompt": "Write a haiku about programming."
+}
+
+###
+
+### Query Validation Error - Empty prompt (should return 400)
+POST {{baseUrl}}/query
+Content-Type: application/json
+
+{
+  "prompt": ""
+}
+
+### ============================================
+### WORKFLOW EXAMPLE
+### ============================================
+### Run these in order to test a typical workflow:
+### 1. Create session
+### 2. Send messages
+### 3. Delete session when done
+
+### Step 1: Create a workflow session
+POST {{baseUrl}}/sessions
+Content-Type: application/json
+
+{
+  "id": "845c51e8-4071-4f22-b25d-28b3e4180428",
+  "metadata": {"workflow": "example"}
+}
+
+###
+
+### Step 2: First message
+POST {{baseUrl}}/sessions/845c51e8-4071-4f22-b25d-28b3e4180428/messages
+Content-Type: application/json
+
+{
+  "prompt": "Remember the number 42. Just say 'OK, I remember 42.'"
+}
+
+###
+
+### Step 3: Follow-up message (tests session context)
+POST {{baseUrl}}/sessions/845c51e8-4071-4f22-b25d-28b3e4180428/messages
+Content-Type: application/json
+
+{
+  "prompt": "What number did I ask you to remember?"
+}
+
+###
+
+### Step 4: Clean up - delete the session
+DELETE {{baseUrl}}/sessions/845c51e8-4071-4f22-b25d-28b3e4180428
