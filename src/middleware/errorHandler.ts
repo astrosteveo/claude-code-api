@@ -1,6 +1,9 @@
 import type { Request, Response, NextFunction } from 'express';
 import { APIError, ErrorCode } from '../types/errors.js';
-import { logger } from '../utils/logger.js';
+import { createLogger } from '../utils/logger.js';
+
+// Create logger instance
+const logger = createLogger('info', './logs/api.log');
 
 /**
  * Error response structure
@@ -45,6 +48,20 @@ export function errorHandler(
     }
 
     res.status(err.statusCode).json(response);
+    return;
+  }
+
+  // Handle errors with code and statusCode properties
+  const anyErr = err as any;
+  if (anyErr.code && anyErr.statusCode) {
+    const response: ErrorResponse = {
+      error: {
+        code: anyErr.code,
+        message: err.message,
+      },
+    };
+
+    res.status(anyErr.statusCode).json(response);
     return;
   }
 

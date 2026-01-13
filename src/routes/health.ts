@@ -20,7 +20,7 @@ router.get('/health', (req: Request, res: Response) => {
 router.get('/info', async (req: Request, res: Response) => {
   try {
     // Load configuration
-    const config = await loadConfig();
+    const config = loadConfig();
 
     // Check CLI availability
     const executor = new CLIExecutor();

@@ -2,7 +2,7 @@ import { SessionStore } from '../infrastructure/SessionStore.js';
 import { CLIExecutor } from '../infrastructure/CLIExecutor.js';
 import { RequestQueue } from '../infrastructure/RequestQueue.js';
 import { buildCLIArgs } from '../utils/cliArgs.js';
-import type { Session } from '../types/session.js';
+import type { Session, CreateSessionData } from '../types/session.js';
 import type { QueryRequest } from '../types/api.js';
 import type { CLIResult, CLIStreamEvent, CLIResultEvent } from '../types/cli.js';
 
@@ -30,10 +30,8 @@ export class SessionService {
   /**
    * Create a new session
    */
-  async createSession(sessionId?: string): Promise<Session> {
-    const session = await this.store.createWithDefaults({
-      id: sessionId,
-    });
+  async createSession(data: CreateSessionData = {}): Promise<Session> {
+    const session = await this.store.createWithDefaults(data);
 
     return session;
   }

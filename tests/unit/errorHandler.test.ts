@@ -12,12 +12,12 @@ import {
 
 // Mock logger
 vi.mock('../../src/utils/logger.js', () => ({
-  logger: {
+  createLogger: vi.fn(() => ({
     error: vi.fn(),
     warn: vi.fn(),
     info: vi.fn(),
     debug: vi.fn(),
-  },
+  })),
 }));
 
 describe('errorHandler', () => {

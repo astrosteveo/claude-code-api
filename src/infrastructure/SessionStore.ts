@@ -1,5 +1,7 @@
 import Database from 'better-sqlite3';
 import { randomUUID } from 'crypto';
+import { existsSync, mkdirSync } from 'fs';
+import { dirname } from 'path';
 import type { Session, CreateSessionData } from '../types/session.js';
 
 /**
@@ -9,6 +11,14 @@ export class SessionStore {
   private db: Database.Database;
 
   constructor(dbPath: string) {
+    // Ensure database directory exists (unless using in-memory database)
+    if (dbPath !== ':memory:') {
+      const dbDir = dirname(dbPath);
+      if (!existsSync(dbDir)) {
+        mkdirSync(dbDir, { recursive: true });
+      }
+    }
+
     this.db = new Database(dbPath);
   }
 

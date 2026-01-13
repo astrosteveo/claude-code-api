@@ -12,7 +12,9 @@ describe('SessionStore', () => {
   });
 
   afterEach(async () => {
-    await store.close();
+    if (store) {
+      await store.close();
+    }
   });
 
   describe('initialize', () => {

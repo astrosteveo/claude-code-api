@@ -145,7 +145,7 @@ describe('SessionService', () => {
         mockStore.createWithDefaults.mockResolvedValue(mockSession);
 
         // Act
-        const result = await service.createSession(customId);
+        const result = await service.createSession({ id: customId });
 
         // Assert
         expect(mockStore.createWithDefaults).toHaveBeenCalledWith({ id: customId });
