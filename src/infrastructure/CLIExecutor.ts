@@ -30,10 +30,13 @@ export class CLIExecutor {
    */
   async execute(args: string[], options: CLIExecuteOptions = {}): Promise<CLIResult> {
     return new Promise((resolve, reject) => {
-      const process = spawn(this.cliPath, args, {
+      const cliProcess = spawn(this.cliPath, args, {
         cwd: options.cwd,
         stdio: ['pipe', 'pipe', 'pipe'],
       });
+
+      // Close stdin immediately - we pass prompt via args, not stdin
+      cliProcess.stdin.end();
 
       let stdout = '';
       let stderr = '';
@@ -42,23 +45,23 @@ export class CLIExecutor {
       // Set timeout if specified
       if (options.timeout) {
         timeoutId = setTimeout(() => {
-          process.kill();
+          cliProcess.kill();
           reject(new Error('CLI process timed out'));
         }, options.timeout);
       }
 
       // Collect stdout
-      process.stdout.on('data', (chunk: Buffer) => {
+      cliProcess.stdout.on('data', (chunk: Buffer) => {
         stdout += chunk.toString();
       });
 
       // Collect stderr
-      process.stderr.on('data', (chunk: Buffer) => {
+      cliProcess.stderr.on('data', (chunk: Buffer) => {
         stderr += chunk.toString();
       });
 
       // Handle process completion
-      process.on('close', (code) => {
+      cliProcess.on('close', (code) => {
         if (timeoutId) {
           clearTimeout(timeoutId);
         }
@@ -94,7 +97,7 @@ export class CLIExecutor {
         }
       });
 
-      process.on('error', (error) => {
+      cliProcess.on('error', (error) => {
         if (timeoutId) {
           clearTimeout(timeoutId);
         }
@@ -107,10 +110,13 @@ export class CLIExecutor {
    * Execute CLI command and yield streaming events
    */
   async *executeStream(args: string[], options: CLIExecuteOptions = {}): AsyncGenerator<CLIStreamEvent> {
-    const process = spawn(this.cliPath, args, {
+    const cliProcess = spawn(this.cliPath, args, {
       cwd: options.cwd,
       stdio: ['pipe', 'pipe', 'pipe'],
     });
+
+    // Close stdin immediately - we pass prompt via args, not stdin
+    cliProcess.stdin.end();
 
     let buffer = '';
     let stderr = '';
@@ -152,10 +158,10 @@ export class CLIExecutor {
     const streamQueue: CLIStreamEvent[] = [];
     let processEnded = false;
 
-    process.stdout.on('data', stdoutHandler);
-    process.stderr.on('data', stderrHandler);
-    process.on('error', errorHandler);
-    process.on('close', closeHandler);
+    cliProcess.stdout.on('data', stdoutHandler);
+    cliProcess.stderr.on('data', stderrHandler);
+    cliProcess.on('error', errorHandler);
+    cliProcess.on('close', closeHandler);
 
     try {
       // Yield events as they arrive
@@ -195,14 +201,14 @@ export class CLIExecutor {
       }
     } finally {
       // Clean up listeners
-      process.stdout.off('data', stdoutHandler);
-      process.stderr.off('data', stderrHandler);
-      process.off('error', errorHandler);
-      process.off('close', closeHandler);
+      cliProcess.stdout.off('data', stdoutHandler);
+      cliProcess.stderr.off('data', stderrHandler);
+      cliProcess.off('error', errorHandler);
+      cliProcess.off('close', closeHandler);
 
       // Kill process if still running
       if (!processEnded) {
-        process.kill();
+        cliProcess.kill();
       }
     }
   }
