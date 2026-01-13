@@ -65,24 +65,20 @@ npm start
 
 ## API Endpoints
 
-### Sessions
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/v1/health` | Health check |
+| GET | `/api/v1/info` | System info with CLI version |
+| POST | `/api/v1/sessions` | Create session |
+| GET | `/api/v1/sessions` | List all sessions |
+| GET | `/api/v1/sessions/:id` | Get session by ID |
+| DELETE | `/api/v1/sessions/:id` | Delete session |
+| POST | `/api/v1/sessions/:id/messages` | Send message (blocking) |
+| POST | `/api/v1/sessions/:id/messages/stream` | Send message (SSE streaming) |
+| POST | `/api/v1/query` | Execute query (blocking) |
+| POST | `/api/v1/query/stream` | Execute query (SSE streaming) |
 
-- `POST /api/v1/sessions` - Create new session
-- `GET /api/v1/sessions` - List all sessions
-- `GET /api/v1/sessions/:id` - Get session details
-- `DELETE /api/v1/sessions/:id` - Delete session
-- `POST /api/v1/sessions/:id/messages` - Send message (blocking)
-- `POST /api/v1/sessions/:id/messages/stream` - Send message (streaming)
-
-### Queries
-
-- `POST /api/v1/query` - Execute query (blocking)
-- `POST /api/v1/query/stream` - Execute query (streaming)
-
-### Health
-
-- `GET /api/v1/health` - Health check
-- `GET /api/v1/info` - System information
+**See [docs/API.md](docs/API.md) for complete API documentation with request/response examples.**
 
 ## Configuration
 
