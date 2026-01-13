@@ -1,0 +1,16 @@
+server:
+  port: 3000
+
+database:
+  path: ./data/sessions.db
+
+cli:
+  timeout: 120000  # 2 minutes in milliseconds
+  defaultModel: sonnet
+
+queue:
+  maxConcurrentPerSession: 1
+
+logging:
+  level: info
+  file: ./logs/api.log
