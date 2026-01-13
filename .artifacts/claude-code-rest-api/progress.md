@@ -8,7 +8,7 @@ Last Updated: 2026-01-13
 ## Checklist
 - [x] Discovery
 - [x] Codebase Exploration
-- [ ] Requirements
+- [x] Requirements
 - [ ] Architecture Design
 - [ ] Implementation
 - [ ] Code Review
@@ -23,6 +23,8 @@ Last Updated: 2026-01-13
 - Confirmed core functionality: models, streaming, sessions, tools, output formats
 - Completed codebase exploration (greenfield project)
 - Documented Claude CLI capabilities, architectural patterns, and technology considerations
+- Completed requirements gathering through 9 clarifying questions
+- Finalized scope: REST API only, SQLite storage, SSE streaming, all CLI flags, no auth, structured errors
 
 ## Codebase Exploration
 
@@ -56,3 +58,46 @@ Last Updated: 2026-01-13
 - `/api/query/stream` - Send prompts (streaming)
 - WebSocket for bidirectional streaming
 - IPC for Electron integration
+
+## Requirements
+
+### Scope Decisions
+1. **MVP**: REST API only (no UI yet)
+2. **Session Storage**: SQLite database
+3. **Streaming**: Both blocking and SSE streaming
+4. **CLI Flags**: All flags supported for full parity
+5. **Authentication**: None (localhost only, rely on CLI auth)
+6. **Error Handling**: Structured responses with HTTP status codes
+7. **Concurrency**: Queue requests per session
+8. **Configuration**: YAML file + env var overrides
+9. **API Versioning**: `/api/v1/` prefix
+
+### Key Features
+- Full session management (create, list, get, delete, resume, fork)
+- Message operations (blocking and streaming modes)
+- All Claude models supported
+- Complete tool control (allow/disallow, patterns, permissions)
+- Advanced features (custom prompts, agents, MCP, plugins, budgets)
+- Structured error responses
+- Configuration via file and environment
+
+### API Endpoints
+```
+POST   /api/v1/sessions
+GET    /api/v1/sessions
+GET    /api/v1/sessions/:id
+DELETE /api/v1/sessions/:id
+POST   /api/v1/sessions/:id/messages
+POST   /api/v1/sessions/:id/messages/stream
+POST   /api/v1/query
+POST   /api/v1/query/stream
+GET    /api/v1/health
+GET    /api/v1/info
+```
+
+### Out of Scope (Future)
+- Web UI
+- Electron app
+- Multi-user auth
+- Cloud deployment features
+- WebSocket (use SSE for now)
