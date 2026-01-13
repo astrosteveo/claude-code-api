@@ -45,7 +45,7 @@ export class RequestQueue {
   }
 
   /**
-   * Clear all pending tasks for a session
+   * Clear all pending tasks for a session and remove the queue
    * Note: Currently running task will complete
    */
   clear(sessionId: string): void {
@@ -53,6 +53,14 @@ export class RequestQueue {
 
     if (queue) {
       queue.clear();
+      this.queues.delete(sessionId); // Prevent memory leak
     }
+  }
+
+  /**
+   * Get the number of active queues (for monitoring/debugging)
+   */
+  getActiveQueueCount(): number {
+    return this.queues.size;
   }
 }

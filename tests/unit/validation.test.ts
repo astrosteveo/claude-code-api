@@ -96,11 +96,12 @@ describe('Validation Middleware', () => {
       expect(mockNext).toHaveBeenCalledWith();
     });
 
-    it('should sanitize prompt to prevent injection', () => {
-      // Arrange
-      const dangerousPrompt = 'test<script>alert("xss")</script>';
+    it('should preserve special characters in prompt (no sanitization)', () => {
+      // Arrange - prompts may contain code, comparisons, etc.
+      // Sanitization is not needed since spawn() uses args array, not shell
+      const promptWithSpecialChars = 'Write code: if (a > b && x < y) { return "test"; }';
       mockReq.body = {
-        prompt: dangerousPrompt,
+        prompt: promptWithSpecialChars,
       };
 
       // Act
@@ -108,8 +109,8 @@ describe('Validation Middleware', () => {
 
       // Assert
       expect(mockNext).toHaveBeenCalledWith();
-      // Prompt should be sanitized in body
-      expect(mockReq.body.prompt).not.toContain('<script>');
+      // Prompt should be unchanged - no sanitization
+      expect(mockReq.body.prompt).toBe(promptWithSpecialChars);
     });
 
     it('should pass with all valid optional fields', () => {
@@ -232,11 +233,11 @@ describe('Validation Middleware', () => {
       expect(mockNext).toHaveBeenCalledWith();
     });
 
-    it('should sanitize prompt in message request', () => {
-      // Arrange
-      const dangerousPrompt = 'test<img src=x onerror=alert(1)>';
+    it('should preserve special characters in message prompt', () => {
+      // Arrange - prompts may contain HTML-like code snippets
+      const promptWithHtmlChars = 'Write an <img> tag with src="photo.jpg"';
       mockReq.body = {
-        prompt: dangerousPrompt,
+        prompt: promptWithHtmlChars,
       };
 
       // Act
@@ -244,7 +245,8 @@ describe('Validation Middleware', () => {
 
       // Assert
       expect(mockNext).toHaveBeenCalledWith();
-      expect(mockReq.body.prompt).not.toContain('<img');
+      // Prompt should be unchanged - no sanitization needed for CLI
+      expect(mockReq.body.prompt).toBe(promptWithHtmlChars);
     });
   });
 });

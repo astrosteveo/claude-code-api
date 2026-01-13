@@ -2,17 +2,10 @@ import type { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import { InvalidRequestError } from '../types/errors.js';
 
-/**
- * Sanitize HTML to prevent XSS injection
- */
-function sanitizeHTML(input: string): string {
-  return input
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#x27;')
-    .replace(/\//g, '&#x2F;');
-}
+// Note: HTML sanitization is intentionally NOT applied to prompts.
+// The CLI is invoked via spawn() with an args array (not shell interpolation),
+// so command injection is not possible. Sanitizing would corrupt valid user
+// input like code snippets containing <, >, quotes, etc.
 
 /**
  * Zod schema for QueryRequest
@@ -91,12 +84,7 @@ export function validateQueryRequest(
     // Validate with Zod
     const validated = QueryRequestSchema.parse(req.body);
 
-    // Sanitize prompt
-    if (validated.prompt) {
-      validated.prompt = sanitizeHTML(validated.prompt);
-    }
-
-    // Update body with validated and sanitized data
+    // Update body with validated data
     req.body = validated;
 
     next();
@@ -148,12 +136,7 @@ export function validateSendMessageRequest(
     // Validate with Zod
     const validated = SendMessageRequestSchema.parse(req.body);
 
-    // Sanitize prompt
-    if (validated.prompt) {
-      validated.prompt = sanitizeHTML(validated.prompt);
-    }
-
-    // Update body with validated and sanitized data
+    // Update body with validated data
     req.body = validated;
 
     next();

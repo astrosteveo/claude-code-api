@@ -11,8 +11,18 @@ import { errorHandler } from './middleware/errorHandler.js';
 export function createApp(): Express {
   const app = express();
 
-  // Middleware
-  app.use(cors());
+  // Configure CORS with allowed origins from environment
+  // Default to localhost only for security; set ALLOWED_ORIGINS for production
+  const allowedOrigins = process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS.split(',').map((o) => o.trim())
+    : ['http://localhost:3000', 'http://localhost:5173', 'http://127.0.0.1:3000'];
+
+  app.use(
+    cors({
+      origin: allowedOrigins,
+      credentials: true,
+    })
+  );
   app.use(express.json());
 
   // Routes

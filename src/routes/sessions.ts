@@ -136,10 +136,20 @@ router.post(
   '/sessions/:id/messages/stream',
   validateSendMessageRequest,
   async (req: Request, res: Response, next: NextFunction) => {
+    const { id } = req.params;
+    const request: QueryRequest = req.body;
+
+    // Track if headers have been sent (streaming started)
+    let streamingStarted = false;
+    let clientDisconnected = false;
+
+    // Handle client disconnect to stop streaming
+    req.on('close', () => {
+      clientDisconnected = true;
+    });
+
     try {
       const service = await getSessionService();
-      const { id } = req.params;
-      const request: QueryRequest = req.body;
 
       // Check if session exists
       const session = await service.getSession(id);
@@ -154,16 +164,27 @@ router.post(
       res.setHeader('Content-Type', 'text/event-stream');
       res.setHeader('Cache-Control', 'no-cache');
       res.setHeader('Connection', 'keep-alive');
+      streamingStarted = true;
 
       // Stream message events
       for await (const event of service.streamMessage(id, request)) {
+        if (clientDisconnected) {
+          break; // Stop streaming if client disconnected
+        }
         res.write(`data: ${JSON.stringify(event)}\n\n`);
       }
 
-      // Close the stream
       res.end();
     } catch (error) {
-      next(error);
+      if (streamingStarted) {
+        // Send error as SSE event since headers already sent
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        res.write(`data: ${JSON.stringify({ type: 'error', error: errorMessage })}\n\n`);
+        res.end();
+      } else {
+        // Headers not sent yet, use normal error handling
+        next(error);
+      }
     }
   }
 );

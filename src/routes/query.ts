@@ -43,25 +43,44 @@ router.post(
   '/query/stream',
   validateQueryRequest,
   async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const service = getQueryService();
-      const request: QueryRequest = req.body;
+    const service = getQueryService();
+    const request: QueryRequest = req.body;
 
+    // Track if headers have been sent (streaming started)
+    let streamingStarted = false;
+    let clientDisconnected = false;
+
+    // Handle client disconnect to stop streaming
+    req.on('close', () => {
+      clientDisconnected = true;
+    });
+
+    try {
       // Set SSE headers
       res.setHeader('Content-Type', 'text/event-stream');
       res.setHeader('Cache-Control', 'no-cache');
       res.setHeader('Connection', 'keep-alive');
+      streamingStarted = true;
 
       // Execute streaming query
       for await (const event of service.executeStream(request)) {
-        // Send event as SSE
+        if (clientDisconnected) {
+          break; // Stop streaming if client disconnected
+        }
         res.write(`data: ${JSON.stringify(event)}\n\n`);
       }
 
-      // Close the stream
       res.end();
     } catch (error) {
-      next(error);
+      if (streamingStarted) {
+        // Send error as SSE event since headers already sent
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        res.write(`data: ${JSON.stringify({ type: 'error', error: errorMessage })}\n\n`);
+        res.end();
+      } else {
+        // Headers not sent yet, use normal error handling
+        next(error);
+      }
     }
   }
 );
