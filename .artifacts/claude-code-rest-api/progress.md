@@ -1,10 +1,10 @@
 # Claude Code REST API - Progress
 
 ## Status
-Phase: Phase 4 - Middleware (Complete) → Phase 5 - Routes (Next)
+Phase: Phase 5 - Routes (In Progress)
 Started: 2026-01-13
 Last Updated: 2026-01-13
-Current Session: Completed middleware layer with errorHandler and validation
+Current Session: Completed session CRUD and query routes
 
 ## Checklist
 - [x] Discovery
@@ -74,6 +74,30 @@ Current Session: Completed middleware layer with errorHandler and validation
     - GREEN: Implemented validation middleware with Zod schemas
     - Features: request validation, HTML sanitization, detailed error messages
 - **Current status**: 134 tests passing, Middleware layer complete
+
+### Resumption (2026-01-13 Phase 5)
+- Resumed session for Phase 5: Routes implementation
+- Fixed Node.js version mismatch (v25 → v20) for better-sqlite3
+- Rebuilt native modules with `npm rebuild better-sqlite3`
+- Completed Phase 5.1: Health routes (already done in previous session)
+  - GET /api/v1/health - Returns status ok
+  - GET /api/v1/info - Returns API version, CLI availability, config
+- Completed Phase 5.2: Session CRUD routes (TDD red-green cycles)
+  - Phase 5.2: Session Routes (9 tests, 100 lines)
+    - RED: Wrote 9 failing tests for session CRUD operations
+    - GREEN: Implemented POST/GET/DELETE /api/v1/sessions endpoints
+    - Fixed SessionStore to auto-create database directory
+    - Enhanced errorHandler to handle custom error objects
+    - Updated SessionService.createSession() to accept CreateSessionData
+  - Features: create sessions, list all, get by ID, delete, 404 handling
+- Completed Phase 5.5: Query routes (TDD red-green cycles)
+  - Phase 5.5: Query Routes (7 tests, 65 lines)
+    - RED: Wrote 7 failing tests for query endpoints
+    - GREEN: Implemented POST /api/v1/query and /query/stream
+    - Used mocked CLIExecutor in tests for fast, reliable testing
+  - Features: blocking query, SSE streaming, request validation
+- **Current status**: 156 tests passing, Session CRUD and Query routes complete
+- **Next**: Session message routes (Phase 5.3-5.4)
 
 ## Codebase Exploration
 

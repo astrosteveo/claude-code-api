@@ -2,6 +2,8 @@ import { Router, type Request, type Response, type NextFunction } from 'express'
 import { SessionService } from '../services/SessionService.js';
 import { ErrorCode } from '../types/errors.js';
 import { loadConfig } from '../config/index.js';
+import { validateSendMessageRequest } from '../middleware/validation.js';
+import type { QueryRequest } from '../types/api.js';
 
 const router = Router();
 
@@ -95,5 +97,75 @@ router.delete('/sessions/:id', async (req: Request, res: Response, next: NextFun
     next(error);
   }
 });
+
+/**
+ * POST /sessions/:id/messages - Send message to session (blocking)
+ */
+router.post(
+  '/sessions/:id/messages',
+  validateSendMessageRequest,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const service = await getSessionService();
+      const { id } = req.params;
+      const request: QueryRequest = req.body;
+
+      // Check if session exists
+      const session = await service.getSession(id);
+      if (!session) {
+        const error = new Error(`Session not found: ${id}`) as any;
+        error.code = ErrorCode.SESSION_NOT_FOUND;
+        error.statusCode = 404;
+        throw error;
+      }
+
+      // Send message and get result
+      const result = await service.sendMessage(id, request);
+
+      res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+/**
+ * POST /sessions/:id/messages/stream - Send message to session (streaming)
+ */
+router.post(
+  '/sessions/:id/messages/stream',
+  validateSendMessageRequest,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const service = await getSessionService();
+      const { id } = req.params;
+      const request: QueryRequest = req.body;
+
+      // Check if session exists
+      const session = await service.getSession(id);
+      if (!session) {
+        const error = new Error(`Session not found: ${id}`) as any;
+        error.code = ErrorCode.SESSION_NOT_FOUND;
+        error.statusCode = 404;
+        throw error;
+      }
+
+      // Set SSE headers
+      res.setHeader('Content-Type', 'text/event-stream');
+      res.setHeader('Cache-Control', 'no-cache');
+      res.setHeader('Connection', 'keep-alive');
+
+      // Stream message events
+      for await (const event of service.streamMessage(id, request)) {
+        res.write(`data: ${JSON.stringify(event)}\n\n`);
+      }
+
+      // Close the stream
+      res.end();
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 export default router;
