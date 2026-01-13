@@ -10,6 +10,16 @@ import {
   ErrorCode,
 } from '../../src/types/errors.js';
 
+// Mock logger
+vi.mock('../../src/utils/logger.js', () => ({
+  logger: {
+    error: vi.fn(),
+    warn: vi.fn(),
+    info: vi.fn(),
+    debug: vi.fn(),
+  },
+}));
+
 describe('errorHandler', () => {
   let mockReq: Partial<Request>;
   let mockRes: Partial<Response>;
