@@ -1,18 +1,18 @@
 # Claude Code REST API - Progress
 
 ## Status
-Phase: Phase 5 - Routes (Complete)
+Phase: Phase 6 - Code Review (Complete)
 Started: 2026-01-13
 Last Updated: 2026-01-13
-Current Session: Completed all Phase 5 routes including session messages
+Current Session: Completed code review and addressed all findings
 
 ## Checklist
 - [x] Discovery
 - [x] Codebase Exploration
 - [x] Requirements
 - [x] Architecture Design
-- [ ] Implementation (TDD Mode)
-- [ ] Code Review
+- [x] Implementation (TDD Mode)
+- [x] Code Review
 - [ ] Testing
 - [ ] Summary
 
@@ -103,7 +103,22 @@ Current Session: Completed all Phase 5 routes including session messages
     - Used mocked CLIExecutor in tests for fast, reliable testing
   - Features: blocking message send, SSE streaming, session validation, request validation
 - **Current status**: 165 tests passing, All Phase 5 routes complete
-- **Next**: Phase 6 - Code Review and Testing
+
+### Phase 6: Code Review
+- Completed comprehensive code review using harness:code-reviewer agent
+- Findings identified and addressed:
+  1. **Critical - Prompt Sanitization** (fixed): HTML sanitization was corrupting valid user input
+     - Removed sanitizeHTML() from prompts - spawn() args array prevents injection
+  2. **Critical - SSE Streaming Errors** (fixed): Errors after headers sent weren't handled
+     - Added SSE error event when streaming fails mid-stream
+  3. **Important - Client Disconnect** (fixed): Orphaned CLI processes on disconnect
+     - Added req.on('close') handler to stop streaming
+  4. **Important - Memory Leak** (fixed): RequestQueue never removed session queues
+     - Added queues.delete() in clear() method
+  5. **Important - CORS Too Permissive** (fixed): Default cors() allowed all origins
+     - Configured ALLOWED_ORIGINS env var with localhost defaults
+- **Current status**: 165 tests passing, all code review issues addressed
+- **Next**: Phase 7 - Testing (manual/integration) and Summary
 
 ## Codebase Exploration
 
