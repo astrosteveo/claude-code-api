@@ -9,7 +9,7 @@ Last Updated: 2026-01-13
 - [x] Discovery
 - [x] Codebase Exploration
 - [x] Requirements
-- [ ] Architecture Design
+- [x] Architecture Design
 - [ ] Implementation
 - [ ] Code Review
 - [ ] Testing
@@ -25,6 +25,9 @@ Last Updated: 2026-01-13
 - Documented Claude CLI capabilities, architectural patterns, and technology considerations
 - Completed requirements gathering through 9 clarifying questions
 - Finalized scope: REST API only, SQLite storage, SSE streaming, all CLI flags, no auth, structured errors
+- Completed architecture design using 3 specialized architect agents
+- Selected Pragmatic Architecture (3-layer) for MVP with evolution path to Clean Architecture
+- User insight: Approach C is a natural stepping stone to Approach B
 
 ## Codebase Exploration
 
@@ -101,3 +104,58 @@ GET    /api/v1/info
 - Multi-user auth
 - Cloud deployment features
 - WebSocket (use SSE for now)
+
+## Architecture Design
+
+### Chosen Approach
+**Pragmatic Architecture** - 3-layer structure (Routes → Services → Infrastructure)
+
+### Rationale
+- Balances simplicity with maintainability
+- TypeScript provides type safety for CLI argument mapping
+- Clear evolution path to Clean Architecture if needed
+- Can be built in 2-3 days while remaining testable and extensible
+
+### Approaches Evaluated
+1. **Minimal** (6 files, ~800 lines) - Too simple, hard to test
+2. **Clean** (40+ files, full DI) - Over-engineered for MVP
+3. **Pragmatic** (15-20 files, 3 layers) - ✓ Selected
+
+### Architecture Layers
+```
+Routes (sessions.ts, query.ts, health.ts)
+   ↓
+Services (SessionService, QueryService)
+   ↓
+Infrastructure (SessionStore, CLIExecutor, RequestQueue)
+```
+
+### Key Components
+- **SessionService**: Session CRUD + message operations with queueing
+- **QueryService**: Stateless query execution
+- **SessionStore**: SQLite operations (better-sqlite3)
+- **CLIExecutor**: Spawn claude process, parse output
+- **RequestQueue**: Per-session FIFO queue (p-queue)
+
+### Technology Stack
+- **Runtime**: Node.js 20+
+- **Language**: TypeScript 5.x
+- **Framework**: Express 4.x
+- **Database**: SQLite (better-sqlite3)
+- **Validation**: Zod
+- **Queue**: p-queue
+- **Config**: js-yaml + dotenv
+- **Logging**: Winston
+
+### Directory Structure
+```
+src/
+├── index.ts, app.ts
+├── config/
+├── routes/ (sessions, query, health)
+├── services/ (SessionService, QueryService)
+├── infrastructure/ (SessionStore, CLIExecutor, RequestQueue)
+├── middleware/ (validation, errorHandler, requestLogger)
+├── types/ (api, cli, errors)
+└── utils/ (cliArgs, streamParser, logger)
+```
