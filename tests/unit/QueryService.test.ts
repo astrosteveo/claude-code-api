@@ -63,10 +63,16 @@ describe('QueryService', () => {
       // Assert
       expect(mockExecutor.execute).toHaveBeenCalledWith(
         expect.arrayContaining([
-          '--output-format=json',
-          '--model=claude-sonnet-3-5',
-          '--tools=Read,Write',
-          '--max-budget-usd=1.0',
+          '-p',
+          '--output-format',
+          'json',
+          '--model',
+          'claude-sonnet-3-5',
+          '--tools',
+          'Read',
+          'Write',
+          '--max-budget-usd',
+          '1',
           'test prompt',
         ])
       );
@@ -263,8 +269,11 @@ describe('QueryService', () => {
       // Assert
       expect(mockExecutor.executeStream).toHaveBeenCalledWith(
         expect.arrayContaining([
-          '--output-format=stream-json',
-          '--model=claude-sonnet-3-5',
+          '-p',
+          '--output-format',
+          'stream-json',
+          '--model',
+          'claude-sonnet-3-5',
           'test',
         ])
       );
