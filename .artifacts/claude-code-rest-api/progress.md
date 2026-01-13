@@ -1,10 +1,10 @@
 # Claude Code REST API - Progress
 
 ## Status
-Phase: Phase 3 - Service Layer (Complete) → Phase 4 - Middleware (Next)
+Phase: Phase 4 - Middleware (Complete) → Phase 5 - Routes (Next)
 Started: 2026-01-13
 Last Updated: 2026-01-13
-Current Session: Completed service layer with QueryService and SessionService
+Current Session: Completed middleware layer with errorHandler and validation
 
 ## Checklist
 - [x] Discovery
@@ -64,7 +64,16 @@ Current Session: Completed service layer with QueryService and SessionService
     - RED: Wrote 18 failing tests for CRUD, message operations, queueing
     - GREEN: Implemented SessionService with SessionStore, CLIExecutor, RequestQueue integration
     - Features: session CRUD, message queueing, metadata updates, cost accumulation
-- **Current status**: 110 tests passing, Service layer complete
+- Completed Phase 4: Middleware layer (TDD red-green cycles)
+  - Phase 4.1: errorHandler (9 tests, 58 lines)
+    - RED: Wrote 9 failing tests for error handling and status mapping
+    - GREEN: Implemented errorHandler with APIError handling, structured responses
+    - Features: error code to HTTP status mapping, error logging
+  - Phase 4.2: validation (15 tests, 168 lines)
+    - RED: Wrote 14 failing tests for request validation and sanitization
+    - GREEN: Implemented validation middleware with Zod schemas
+    - Features: request validation, HTML sanitization, detailed error messages
+- **Current status**: 134 tests passing, Middleware layer complete
 
 ## Codebase Exploration
 
