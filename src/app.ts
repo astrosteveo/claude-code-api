@@ -2,6 +2,7 @@ import express, { type Express } from 'express';
 import cors from 'cors';
 import healthRoutes from './routes/health.js';
 import sessionsRoutes from './routes/sessions.js';
+import queryRoutes from './routes/query.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
 /**
@@ -17,6 +18,7 @@ export function createApp(): Express {
   // Routes
   app.use('/api/v1', healthRoutes);
   app.use('/api/v1', sessionsRoutes);
+  app.use('/api/v1', queryRoutes);
 
   // Error handler (must be last)
   app.use(errorHandler);
