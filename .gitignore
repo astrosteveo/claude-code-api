@@ -1,6 +1,9 @@
 # Dependencies
 node_modules/
 
+# Engram data
+.engram/
+
 # Build output
 dist/
 

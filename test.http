@@ -81,7 +81,7 @@ POST {{baseUrl}}/sessions/{{sessionId}}/messages
 Content-Type: application/json
 
 {
-  "prompt": "What is 2 + 2? Reply with just the number."
+  "prompt": "What is the capital of the United States?"
 }
 
 ###
