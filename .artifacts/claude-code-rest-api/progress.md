@@ -1,10 +1,10 @@
 # Claude Code REST API - Progress
 
 ## Status
-Phase: Phase 5 - Routes (In Progress)
+Phase: Phase 5 - Routes (Complete)
 Started: 2026-01-13
 Last Updated: 2026-01-13
-Current Session: Completed session CRUD and query routes
+Current Session: Completed all Phase 5 routes including session messages
 
 ## Checklist
 - [x] Discovery
@@ -96,8 +96,14 @@ Current Session: Completed session CRUD and query routes
     - GREEN: Implemented POST /api/v1/query and /query/stream
     - Used mocked CLIExecutor in tests for fast, reliable testing
   - Features: blocking query, SSE streaming, request validation
-- **Current status**: 156 tests passing, Session CRUD and Query routes complete
-- **Next**: Session message routes (Phase 5.3-5.4)
+- Completed Phase 5.3/5.4: Session message routes (TDD red-green cycles)
+  - Phase 5.3/5.4: Session Message Routes (9 tests, 72 lines)
+    - RED: Wrote 9 failing tests for session message endpoints
+    - GREEN: Implemented POST /sessions/:id/messages and /messages/stream
+    - Used mocked CLIExecutor in tests for fast, reliable testing
+  - Features: blocking message send, SSE streaming, session validation, request validation
+- **Current status**: 165 tests passing, All Phase 5 routes complete
+- **Next**: Phase 6 - Code Review and Testing
 
 ## Codebase Exploration
 
