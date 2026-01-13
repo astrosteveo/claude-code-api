@@ -7,7 +7,7 @@ const router = Router();
 /**
  * GET /health - Simple health check
  */
-router.get('/health', (req: Request, res: Response) => {
+router.get('/health', (_req: Request, res: Response) => {
   res.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
@@ -17,7 +17,7 @@ router.get('/health', (req: Request, res: Response) => {
 /**
  * GET /info - Detailed system information
  */
-router.get('/info', async (req: Request, res: Response) => {
+router.get('/info', async (_req: Request, res: Response) => {
   try {
     // Load configuration
     const config = loadConfig();

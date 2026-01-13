@@ -27,7 +27,8 @@ export class RequestQueue {
     }
 
     // Add task to queue and return its promise
-    return queue.add(task);
+    // Type assertion needed because p-queue returns Promise<T | void>
+    return queue.add(task) as Promise<T>;
   }
 
   /**

@@ -24,7 +24,7 @@ export function errorHandler(
   err: Error,
   req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction // Required by Express error handler signature
 ): void {
   // Log the error
   logger.error('Request error', {

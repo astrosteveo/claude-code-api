@@ -1,4 +1,4 @@
-import { spawn, type ChildProcess } from 'child_process';
+import { spawn } from 'child_process';
 import { parseStreamLine } from '../utils/streamParser.js';
 import type { CLIResult, CLIStreamEvent, CLIResultEvent } from '../types/cli.js';
 

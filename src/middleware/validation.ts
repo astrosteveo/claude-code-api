@@ -77,7 +77,7 @@ const SendMessageRequestSchema = z.object({
  */
 export function validateQueryRequest(
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ): void {
   try {
@@ -103,7 +103,7 @@ export function validateQueryRequest(
  */
 export function validateCreateSessionRequest(
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ): void {
   try {
@@ -129,7 +129,7 @@ export function validateCreateSessionRequest(
  */
 export function validateSendMessageRequest(
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ): void {
   try {

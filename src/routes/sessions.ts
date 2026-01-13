@@ -39,7 +39,7 @@ router.post('/sessions', async (req: Request, res: Response, next: NextFunction)
 /**
  * GET /sessions - List all sessions
  */
-router.get('/sessions', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/sessions', async (_req: Request, res: Response, next: NextFunction) => {
   try {
     const service = await getSessionService();
     const sessions = await service.listSessions();
