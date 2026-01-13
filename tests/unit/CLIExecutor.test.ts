@@ -244,6 +244,7 @@ describe('CLIExecutor', () => {
       })();
 
       mockProcess.emit('error', new Error('Process failed'));
+      mockProcess.emit('close', 1); // Emit close to end the loop
 
       const error = await collectPromise;
 
