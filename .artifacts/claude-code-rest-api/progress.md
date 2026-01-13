@@ -1,10 +1,10 @@
 # Claude Code REST API - Progress
 
 ## Status
-Phase: Phase 2 - Infrastructure Layer (In Progress)
+Phase: Phase 2 - Infrastructure Layer (Complete) → Phase 3 - Service Layer (Next)
 Started: 2026-01-13
 Last Updated: 2026-01-13
-Session Paused: Awaiting Node 20 setup for SessionStore tests
+Current Session: Resumed and completed infrastructure layer
 
 ## Checklist
 - [x] Discovery
@@ -44,13 +44,19 @@ Session Paused: Awaiting Node 20 setup for SessionStore tests
   - Blocked on Node 20 setup for better-sqlite3 compilation
 - **Session Paused**: Need to reinstall dependencies with Node 20
 
-### Resumption Checklist
-When resuming:
-1. Use Node 20: `nvm use 20`
-2. Clean install: `rm -rf node_modules package-lock.json && npm install`
-3. Run tests: `npm run test:unit` (should see 58 tests pass)
-4. Commit SessionStore (GREEN phase)
-5. Continue with Phase 2.2: CLIExecutor
+### Resumption (2026-01-13 continued)
+- Resumed session successfully
+- Setup Node 20 environment using use-node20.sh script
+- Clean installed dependencies with better-sqlite3 compilation successful
+- Verified all 58 tests passing
+- Completed Phase 2: Infrastructure layer (TDD red-green cycles)
+  - Phase 2.2: CLIExecutor (12 tests, 248 lines)
+    - RED: Wrote 11 failing tests for blocking/streaming execution and health checks
+    - GREEN: Implemented CLIExecutor with execute(), executeStream(), checkHealth()
+  - Phase 2.3: RequestQueue (12 tests, 58 lines)
+    - RED: Wrote 12 failing tests for queueing, concurrency, error handling
+    - GREEN: Implemented RequestQueue using p-queue library
+- **Current status**: 82 tests passing, Infrastructure layer complete
 
 ## Codebase Exploration
 
