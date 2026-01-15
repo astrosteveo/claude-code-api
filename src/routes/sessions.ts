@@ -143,8 +143,8 @@ router.post(
     let streamingStarted = false;
     let clientDisconnected = false;
 
-    // Handle client disconnect to stop streaming
-    req.on('close', () => {
+    // Handle client disconnect to stop streaming (listen on response, not request)
+    res.on('close', () => {
       clientDisconnected = true;
     });
 
@@ -164,6 +164,8 @@ router.post(
       res.setHeader('Content-Type', 'text/event-stream');
       res.setHeader('Cache-Control', 'no-cache');
       res.setHeader('Connection', 'keep-alive');
+      res.setHeader('X-Accel-Buffering', 'no'); // Disable nginx buffering
+      res.flushHeaders(); // Send headers immediately to establish SSE connection
       streamingStarted = true;
 
       // Stream message events
@@ -172,6 +174,10 @@ router.post(
           break; // Stop streaming if client disconnected
         }
         res.write(`data: ${JSON.stringify(event)}\n\n`);
+        // Flush after each event for real-time streaming
+        if (typeof (res as any).flush === 'function') {
+          (res as any).flush();
+        }
       }
 
       res.end();

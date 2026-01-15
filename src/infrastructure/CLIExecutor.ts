@@ -73,7 +73,16 @@ export class CLIExecutor {
 
         try {
           // Parse the JSON result from stdout
-          const parsed = JSON.parse(stdout.trim()) as CLIResultEvent;
+          // CLI outputs a JSON array with multiple events; the result is the last item
+          const events = JSON.parse(stdout.trim());
+          const parsed = Array.isArray(events)
+            ? (events.find((e: { type: string }) => e.type === 'result') as CLIResultEvent)
+            : (events as CLIResultEvent);
+
+          if (!parsed || parsed.type !== 'result') {
+            reject(new Error('No result event found in CLI output'));
+            return;
+          }
 
           const result: CLIResult = {
             type: 'result',
@@ -82,12 +91,14 @@ export class CLIExecutor {
             sessionId: parsed.session_id,
             totalCostUsd: parsed.total_cost_usd,
             durationMs: parsed.duration_ms,
-            usage: {
-              inputTokens: parsed.usage.input_tokens,
-              outputTokens: parsed.usage.output_tokens,
-              cacheCreationInputTokens: parsed.usage.cache_creation_input_tokens,
-              cacheReadInputTokens: parsed.usage.cache_read_input_tokens,
-            },
+            usage: parsed.usage
+              ? {
+                  inputTokens: parsed.usage.input_tokens,
+                  outputTokens: parsed.usage.output_tokens,
+                  cacheCreationInputTokens: parsed.usage.cache_creation_input_tokens,
+                  cacheReadInputTokens: parsed.usage.cache_read_input_tokens,
+                }
+              : { inputTokens: 0, outputTokens: 0 },
             structuredOutput: parsed.structured_output,
           };
 
@@ -180,8 +191,14 @@ export class CLIExecutor {
           if (buffer.trim()) {
             const event = parseStreamLine(buffer);
             if (event) {
-              yield event;
+              streamQueue.push(event);
             }
+          }
+
+          // Yield all remaining queued events before finishing
+          while (streamQueue.length > 0) {
+            const event = streamQueue.shift()!;
+            yield event;
           }
 
           // Check for errors

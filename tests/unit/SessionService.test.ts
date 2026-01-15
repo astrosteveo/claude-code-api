@@ -301,7 +301,7 @@ describe('SessionService', () => {
           prompt: 'test',
         };
 
-        mockStore.exists.mockResolvedValue(true);
+        mockStore.findById.mockResolvedValue({ id: 'test-session', messageCount: 0 });
 
         const mockResult: CLIResult = {
           type: 'result',
@@ -342,7 +342,7 @@ describe('SessionService', () => {
           prompt: 'test',
         };
 
-        mockStore.exists.mockResolvedValue(true);
+        mockStore.findById.mockResolvedValue({ id: 'test-session', messageCount: 0 });
 
         const mockResult: CLIResult = {
           type: 'result',
