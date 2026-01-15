@@ -252,10 +252,18 @@ curl -X POST http://localhost:3000/api/v1/sessions/my-session/messages \
 
 ```json
 {
-  "output": "I found the following files in the current directory:\n\n- package.json\n- tsconfig.json\n- src/\n- tests/\n...",
+  "type": "result",
+  "subtype": "success",
+  "result": "I found the following files in the current directory:\n\n- package.json\n- tsconfig.json\n- src/\n- tests/\n...",
+  "sessionId": "my-session",
   "totalCostUsd": 0.0023,
-  "inputTokens": 150,
-  "outputTokens": 200
+  "durationMs": 1234,
+  "usage": {
+    "inputTokens": 150,
+    "outputTokens": 200,
+    "cacheCreationInputTokens": 1000,
+    "cacheReadInputTokens": 5000
+  }
 }
 ```
 
@@ -310,21 +318,24 @@ Connection: keep-alive
 
 **Response Body (SSE events)**
 
+Events are streamed as newline-delimited JSON. Common event types:
+
 ```
-data: {"type":"text","text":"Here"}
+data: {"type":"system","subtype":"init","session_id":"...","tools":[...],"model":"claude-haiku-4-5-20251001"}
 
-data: {"type":"text","text":"'s a"}
+data: {"type":"assistant","message":{"role":"assistant","content":[{"type":"text","text":"Here's a hello world function:"}]}}
 
-data: {"type":"text","text":" hello"}
-
-data: {"type":"text","text":" world"}
-
-data: {"type":"text","text":" function:"}
-
-data: {"type":"text","text":"\n\n```python"}
-
-data: {"type":"result","output":"Here's a hello world function:\n\n```python\ndef hello():\n    print(\"Hello, World!\")\n```","total_cost_usd":0.0015,"input_tokens":50,"output_tokens":30}
+data: {"type":"result","subtype":"success","result":"Here's a hello world function:\n\n```python\ndef hello():\n    print(\"Hello, World!\")\n```","sessionId":"...","totalCostUsd":0.0015,"durationMs":1234,"usage":{"inputTokens":50,"outputTokens":30}}
 ```
+
+**Event Types**
+
+| Type | Description |
+|------|-------------|
+| `system` | System events (init, hooks) |
+| `assistant` | Claude's response messages |
+| `user` | Tool results and synthetic messages |
+| `result` | Final result with cost/usage stats |
 
 **Error During Streaming**
 
@@ -363,10 +374,16 @@ curl -X POST http://localhost:3000/api/v1/query \
 
 ```json
 {
-  "output": "2 + 2 = 4",
+  "type": "result",
+  "subtype": "success",
+  "result": "2 + 2 = 4",
+  "sessionId": "auto-generated-uuid",
   "totalCostUsd": 0.0001,
-  "inputTokens": 10,
-  "outputTokens": 8
+  "durationMs": 500,
+  "usage": {
+    "inputTokens": 10,
+    "outputTokens": 8
+  }
 }
 ```
 
@@ -492,17 +509,17 @@ const response = await fetch('http://localhost:3000/api/v1/query', {
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({ prompt: 'Hello, Claude!' })
 });
-const result = await response.json();
-console.log(result.output);
+const data = await response.json();
+console.log(data.result);
 
 // Streaming query
-const response = await fetch('http://localhost:3000/api/v1/query/stream', {
+const streamResponse = await fetch('http://localhost:3000/api/v1/query/stream', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({ prompt: 'Write a poem' })
 });
 
-const reader = response.body.getReader();
+const reader = streamResponse.body.getReader();
 const decoder = new TextDecoder();
 
 while (true) {
@@ -510,13 +527,21 @@ while (true) {
   if (done) break;
 
   const chunk = decoder.decode(value);
-  const lines = chunk.split('\n');
-
-  for (const line of lines) {
+  for (const line of chunk.split('\n\n')) {
     if (line.startsWith('data: ')) {
       const event = JSON.parse(line.slice(6));
-      if (event.type === 'text') {
-        process.stdout.write(event.text);
+      if (event.type === 'assistant') {
+        // Extract text from assistant messages
+        const content = event.message?.content;
+        if (content) {
+          for (const block of content) {
+            if (block.type === 'text') {
+              process.stdout.write(block.text);
+            }
+          }
+        }
+      } else if (event.type === 'result') {
+        console.log('\n\nFinal result:', event.result);
       }
     }
   }
@@ -527,13 +552,14 @@ while (true) {
 
 ```python
 import requests
+import json
 
 # Blocking query
 response = requests.post(
     'http://localhost:3000/api/v1/query',
     json={'prompt': 'Hello, Claude!'}
 )
-print(response.json()['output'])
+print(response.json()['result'])
 
 # Streaming query
 response = requests.post(
@@ -543,11 +569,15 @@ response = requests.post(
 )
 
 for line in response.iter_lines():
-    if line.startswith(b'data: '):
-        import json
+    if line and line.startswith(b'data: '):
         event = json.loads(line[6:])
-        if event.get('type') == 'text':
-            print(event['text'], end='', flush=True)
+        if event.get('type') == 'assistant':
+            content = event.get('message', {}).get('content', [])
+            for block in content:
+                if block.get('type') == 'text':
+                    print(block['text'], end='', flush=True)
+        elif event.get('type') == 'result':
+            print(f"\n\nCost: ${event.get('totalCostUsd', 0):.4f}")
 ```
 
 ### curl
