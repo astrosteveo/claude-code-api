@@ -86,10 +86,12 @@ npm start
 
 - `PORT` - Server port (default: 3000)
 - `DB_PATH` - Database file path (default: ./data/sessions.db)
+- `CLAUDE_CODE_PATH` - Path to Claude CLI (default: auto-detected via `which claude`)
 - `CLI_TIMEOUT` - CLI execution timeout in ms (default: 120000)
 - `DEFAULT_MODEL` - Default Claude model (default: sonnet)
 - `LOG_LEVEL` - Logging level (default: info)
 - `LOG_FILE` - Log file path (default: ./logs/api.log)
+- `ALLOWED_ORIGINS` - CORS allowed origins, comma-separated (default: localhost:3000,localhost:5173,127.0.0.1:3000)
 
 ### config.yaml
 

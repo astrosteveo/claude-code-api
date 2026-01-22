@@ -477,6 +477,7 @@ All errors follow a consistent format:
   settings?: string | object;  // Settings override
   strictMcpConfig?: boolean;   // Strict MCP configuration
   disableSlashCommands?: boolean; // Disable slash commands
+  forkSession?: boolean;       // Fork from existing session (for session messages)
 }
 ```
 
@@ -490,11 +491,12 @@ All errors follow a consistent format:
 |----------|---------|-------------|
 | `PORT` | 3000 | Server port |
 | `DB_PATH` | ./data/sessions.db | SQLite database path |
+| `CLAUDE_CODE_PATH` | (auto-detected) | Path to Claude CLI executable |
 | `CLI_TIMEOUT` | 120000 | CLI timeout (ms) |
 | `DEFAULT_MODEL` | sonnet | Default Claude model |
 | `LOG_LEVEL` | info | Log level (error/warn/info/debug) |
 | `LOG_FILE` | ./logs/api.log | Log file path |
-| `ALLOWED_ORIGINS` | localhost:3000,localhost:5173 | CORS allowed origins (comma-separated) |
+| `ALLOWED_ORIGINS` | http://localhost:3000,http://localhost:5173,http://127.0.0.1:3000 | CORS allowed origins (comma-separated) |
 
 ---
 
