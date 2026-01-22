@@ -66,21 +66,20 @@ export class CLIExecutor {
           clearTimeout(timeoutId);
         }
 
-        if (code !== 0) {
-          reject(new Error(`CLI process failed with exit code ${code}: ${stderr}`));
-          return;
-        }
-
         try {
-          // Parse the JSON result from stdout
-          // CLI outputs a JSON array with multiple events; the result is the last item
+          // Parse the JSON result from stdout regardless of exit code
+          // Claude Code CLI outputs valid JSON even when authentication fails
           const events = JSON.parse(stdout.trim());
           const parsed = Array.isArray(events)
             ? (events.find((e: { type: string }) => e.type === 'result') as CLIResultEvent)
             : (events as CLIResultEvent);
 
           if (!parsed || parsed.type !== 'result') {
-            reject(new Error('No result event found in CLI output'));
+            if (code !== 0) {
+              reject(new Error(`CLI process failed with exit code ${code}: ${stderr}`));
+            } else {
+              reject(new Error('No result event found in CLI output'));
+            }
             return;
           }
 
@@ -104,7 +103,11 @@ export class CLIExecutor {
 
           resolve(result);
         } catch (error) {
-          reject(new Error(`Failed to parse CLI output: ${error}`));
+          if (code !== 0) {
+            reject(new Error(`CLI process failed with exit code ${code}: ${stderr || error}`));
+          } else {
+            reject(new Error(`Failed to parse CLI output: ${error}`));
+          }
         }
       });
 
@@ -206,9 +209,9 @@ export class CLIExecutor {
             throw errors[0];
           }
 
-          if (closeCode !== 0) {
-            throw new Error(`CLI process failed with exit code ${closeCode}: ${stderr}`);
-          }
+          // Note: Don't reject on non-zero exit code for streaming
+          // The Claude Code CLI returns valid event streams even with exit code 1 (e.g., auth errors)
+          // All events have already been yielded, including any error information in the result event
 
           break;
         }

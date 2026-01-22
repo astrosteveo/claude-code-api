@@ -1,9 +1,14 @@
 import express, { type Express } from 'express';
 import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import healthRoutes from './routes/health.js';
 import sessionsRoutes from './routes/sessions.js';
 import queryRoutes from './routes/query.js';
 import { errorHandler } from './middleware/errorHandler.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /**
  * Create and configure Express application
@@ -24,6 +29,10 @@ export function createApp(): Express {
     })
   );
   app.use(express.json());
+
+  // Serve static files from public directory
+  const publicPath = path.join(__dirname, '..', 'public');
+  app.use(express.static(publicPath));
 
   // Routes
   app.use('/api/v1', healthRoutes);

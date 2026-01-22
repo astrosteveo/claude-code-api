@@ -6,6 +6,7 @@ export interface Config {
     path: string;
   };
   cli: {
+    path: string;
     timeout: number;
     defaultModel: string;
   };

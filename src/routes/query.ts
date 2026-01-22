@@ -1,6 +1,7 @@
 import { Router, type Request, type Response, type NextFunction } from 'express';
 import { QueryService } from '../services/QueryService.js';
 import { validateQueryRequest } from '../middleware/validation.js';
+import { loadConfig } from '../config/index.js';
 import type { QueryRequest } from '../types/api.js';
 
 const router = Router();
@@ -10,7 +11,8 @@ let queryService: QueryService | null = null;
 
 function getQueryService(): QueryService {
   if (!queryService) {
-    queryService = new QueryService();
+    const config = loadConfig();
+    queryService = new QueryService(config.cli.path);
   }
   return queryService;
 }

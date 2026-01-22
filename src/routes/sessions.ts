@@ -14,7 +14,7 @@ let sessionService: SessionService | null = null;
 async function getSessionService(): Promise<SessionService> {
   if (!sessionService) {
     const config = loadConfig();
-    sessionService = new SessionService(config.database.path);
+    sessionService = new SessionService(config.database.path, config.cli.path);
     await sessionService.initialize();
   }
   return sessionService;

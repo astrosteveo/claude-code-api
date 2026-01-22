@@ -1,7 +1,21 @@
 import { readFileSync } from 'fs';
+import { execSync } from 'child_process';
 import { resolve } from 'path';
 import yaml from 'js-yaml';
 import type { Config } from '../types/config.js';
+
+/**
+ * Detect Claude CLI path using `which claude`
+ * Falls back to 'claude' if not found (relies on PATH)
+ */
+function detectCliPath(): string {
+  try {
+    const result = execSync('which claude', { encoding: 'utf8' });
+    return result.trim();
+  } catch {
+    return 'claude';
+  }
+}
 
 const DEFAULT_CONFIG: Config = {
   server: {
@@ -11,6 +25,7 @@ const DEFAULT_CONFIG: Config = {
     path: './data/sessions.db',
   },
   cli: {
+    path: detectCliPath(),
     timeout: 120000,
     defaultModel: 'sonnet',
   },
@@ -53,6 +68,10 @@ export function loadConfig(): Config {
 
   if (process.env.DB_PATH) {
     config.database.path = process.env.DB_PATH;
+  }
+
+  if (process.env.CLAUDE_CODE_PATH) {
+    config.cli.path = process.env.CLAUDE_CODE_PATH;
   }
 
   if (process.env.CLI_TIMEOUT) {
